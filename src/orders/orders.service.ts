@@ -1,7 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { PrismaService } from './services/prisma.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { RpcException } from '@nestjs/microservices';
+import { OrderPaginationDto } from './dto';
 
 @Injectable()
 export class OrdersService {
@@ -15,15 +17,18 @@ export class OrdersService {
     });
   }
 
-  async findAll(paginationDto: PaginationDto) {
-    const { page, limit } = paginationDto;
+  async findAll(orderPaginationDto: OrderPaginationDto) {
+    const { page, limit, status } = orderPaginationDto;
 
     const [data, total] = await Promise.all([
       this.prisma.order.findMany({
+        where: { status: orderPaginationDto.status },
         take: limit,
         skip: (page - 1) * limit,
       }),
-      this.prisma.order.count(),
+      this.prisma.order.count({
+        where: { status: orderPaginationDto.status }
+      }),
     ]);
 
     const totalPages = Math.ceil(total / limit);
@@ -38,10 +43,16 @@ export class OrdersService {
     };
   }
 
-  findOne(id: string) {
-    return this.prisma.order.findUnique({
+  async findOne(id: string) {
+    const order = await this.prisma.order.findUnique({
       where: { id: id },
     });
+
+    if (!order) {
+      throw new RpcException({ status: HttpStatus.NOT_FOUND, message: `Order with id ${id} not found` });
+    }
+
+    return order;
   }
 
   changeOrderStatus() {
