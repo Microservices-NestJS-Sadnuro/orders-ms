@@ -24,7 +24,7 @@ export class OrdersController {
   }
 
   @MessagePattern('changeOrderStatus')
-  changeOrderStatus() {
-    throw new NotImplementedException();
+  changeOrderStatus(@Payload() id: number) {
+    return this.ordersService.changeOrderStatus();
   }
 }
