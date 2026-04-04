@@ -18,12 +18,13 @@ enum OrderStatus {
 }
 
 model Order {
-  id          String      @id @default(uuid())
+  id          String @id @default(uuid())
   totalAmount Float
   totalItems  Int
-  status      OrderStatus
-  paid        Boolean     @default(false)
-  paidAt      DateTime?
+
+  status OrderStatus
+  paid   Boolean     @default(false)
+  paidAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
