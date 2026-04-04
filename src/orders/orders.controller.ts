@@ -10,6 +10,7 @@ export class OrdersController {
 
   @MessagePattern('createOrder')
   create(@Payload() createOrderDto: CreateOrderDto) {
+    console.log('Entry MS controller - Create order');
     return this.ordersService.create(createOrderDto);
   }
 
