@@ -21,6 +21,12 @@ export class OrdersController {
     return this.ordersService.findAll(orderPaginationDto);
   }
 
+  @MessagePattern('findAllOrdersByStatus')
+  findAllByStatus(@Payload() orderPaginationDto: OrderPaginationDto) {
+    console.log('Entry MS controller - Find all orders by status');
+    return this.ordersService.findAllByStatus(orderPaginationDto);
+  }
+
   @MessagePattern('findOneOrder')
   findOne(@Payload() id: string) {
     console.log('Entry MS controller - Find one order');

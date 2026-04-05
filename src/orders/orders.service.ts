@@ -4,6 +4,7 @@ import { PrismaService } from './services/prisma.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { RpcException } from '@nestjs/microservices';
 import { OrderPaginationDto } from './dto';
+import { StatusDto } from './dto/status.dto';
 
 @Injectable()
 export class OrdersService {
@@ -29,6 +30,32 @@ export class OrdersService {
       this.prisma.order.count({
         where: { status: orderPaginationDto.status }
       }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: totalPages,
+      }
+    };
+  }
+
+  async findAllByStatus(orderPaginationDto: OrderPaginationDto) {
+    const { page, limit, status } = orderPaginationDto;
+
+    const [total, data] = await Promise.all([
+      this.prisma.order.count({
+        where: { status: status }
+      }),
+      this.prisma.order.findMany({
+        where: { status: status },
+        skip: (page - 1) * limit,
+        take: limit,
+      })
     ]);
 
     const totalPages = Math.ceil(total / limit);
