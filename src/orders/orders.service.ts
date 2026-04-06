@@ -36,6 +36,7 @@ export class OrdersService {
       // Create the Prisma Transaction or standard insertion
       const order = await this.prisma.order.create({
         data: {
+          clientId: createOrderDto.clientId,
           totalAmount: totalAmount,
           totalItems: totalItems,
           // If status isn't provided, Prisma or DTO default should be used, or just pass it if it's there
