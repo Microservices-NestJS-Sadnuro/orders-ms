@@ -1,10 +1,8 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { PrismaService } from './services/prisma.service';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { RpcException } from '@nestjs/microservices';
 import { OrderPaginationDto } from './dto';
-import { StatusDto } from './dto/status.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 @Injectable()
@@ -93,6 +91,10 @@ export class OrdersService {
         status: HttpStatus.NOT_FOUND,
         message: `Order with id ${updateOrderStatusDto.id} not found`
       });
+    }
+
+    if (order.status === updateOrderStatusDto.status) {
+      return order;
     }
 
     return this.prisma.order.update({
