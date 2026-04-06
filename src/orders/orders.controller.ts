@@ -11,31 +11,26 @@ export class OrdersController {
 
   @MessagePattern('createOrder')
   create(@Payload() createOrderDto: CreateOrderDto) {
-    console.log('Entry MS controller - Create order');
     return this.ordersService.create(createOrderDto);
   }
 
   @MessagePattern('findAllOrders')
   findAll(@Payload() orderPaginationDto: OrderPaginationDto) {
-    console.log('Entry MS controller - Find all orders');
     return this.ordersService.findAll(orderPaginationDto);
   }
 
   @MessagePattern('findAllOrdersByStatus')
   findAllByStatus(@Payload() orderPaginationDto: OrderPaginationDto) {
-    console.log('Entry MS controller - Find all orders by status');
     return this.ordersService.findAllByStatus(orderPaginationDto);
   }
 
   @MessagePattern('findOneOrder')
   findOne(@Payload() id: string) {
-    console.log('Entry MS controller - Find one order');
     return this.ordersService.findOne(id);
   }
 
   @MessagePattern('changeOrderStatus')
   changeOrderStatus(@Payload() updateOrderStatusDto: UpdateOrderStatusDto) {
-    console.log('Entry MS controller - Change order status');
     return this.ordersService.changeOrderStatus(updateOrderStatusDto);
   }
 }
