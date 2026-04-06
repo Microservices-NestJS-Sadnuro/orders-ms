@@ -15,10 +15,11 @@ Modelo de base de datos gestionado en Prisma:
 
 ## Dev
 1. Clonar repositorio
-2. Instalar dependencias
-3. Crear archivo .env basado en env.template
-4. Ejecutar migración de prisma `npx prisma migrate dev`
-5. Ejecutar el proyecto `npm run start:dev`
+2. Instalar dependencias: `npm install`
+3. Crear archivo `.env` basado en `env.template`
+4. Ejecutar migración de prisma: `npx prisma migrate dev`
+5. Ejecutar el proyecto: `npm run start:dev`
+
 
 ## Instantiate Postgres Database
 ```bash
