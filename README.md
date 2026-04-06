@@ -13,7 +13,7 @@ Se comunica con el `products-ms` mediante transporte TCP para validar los produc
 Modelo de base de datos gestionado en Prisma:
 ![Orders ER Diagram](./docs/images/ordersdb-ER.png)
 
-## Dev
+## Instalación
 1. Clonar repositorio
 2. Instalar dependencias: `npm install`
 3. Crear archivo `.env` basado en `env.template`
