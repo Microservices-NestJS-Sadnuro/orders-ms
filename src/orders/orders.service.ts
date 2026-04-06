@@ -1,11 +1,12 @@
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { PrismaService } from './services/prisma.service';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { PRODUCT_SERVICE } from '../config';
 import { firstValueFrom } from 'rxjs';
 import { OrderPaginationDto } from './dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { PRODUCTS_SERVICE } from 'src/config';
+import { ProductsService } from './services/products.service';
 
 @Injectable()
 export class OrdersService {
@@ -13,7 +14,7 @@ export class OrdersService {
 
   constructor(
     private readonly prisma: PrismaService,
-    @Inject(PRODUCT_SERVICE) private readonly productsClient: ClientProxy,
+    private readonly productsService: ProductsService,
   ) { }
 
   async create(createOrderDto: CreateOrderDto) {
@@ -21,39 +22,39 @@ export class OrdersService {
       // 1. Extract product IDs
       const productIds = createOrderDto.orderDetail.map(detail => detail.productId);
 
-      // 2. Fetch validated products from Products MS
-      const products: any[] = await firstValueFrom(
-        this.productsClient.send({ cmd: 'validate_products' }, productIds)
-      );
+      // 2. Fetch validated products from Products MSS
+      console.log('productIds', productIds);
+      const products: any[] = await firstValueFrom(this.productsService.findManyByIds({ productIds }));
+      console.log('products');
 
-      // 3. Calculate total Amount and construct detail map
-      const totalAmount = createOrderDto.orderDetail.reduce((acc, orderItem) => {
-        const product = products.find(p => p.id === orderItem.productId);
-        return acc + (product.price * orderItem.quantity);
-      }, 0);
+      // // 3. Calculate total Amount and construct detail map
+      // const totalAmount = createOrderDto.orderDetail.reduce((acc, orderItem) => {
+      //   const product = products.find(p => p.id === orderItem.productId);
+      //   return acc + (product.price * orderItem.quantity);
+      // }, 0);
 
-      const totalItems = createOrderDto.orderDetail.reduce((acc, orderItem) => {
-        return acc + orderItem.quantity;
-      }, 0);
+      // const totalItems = createOrderDto.orderDetail.reduce((acc, orderItem) => {
+      //   return acc + orderItem.quantity;
+      // }, 0);
 
-      // 4. Create the Prisma Transaction or standard insertion
-      const order = await this.prisma.order.create({
-        data: {
-          totalAmount: totalAmount,
-          totalItems: totalItems,
-          // If status isn't provided, Prisma or DTO default should be used, or just pass it if it's there
-          // status: createOrderDto.status, // Uncomment if you still receive status from client
-          orderDetail: {
-            create: createOrderDto.orderDetail.map(detail => ({
-              productId: detail.productId,
-              quantity: detail.quantity,
-              price: products.find(p => p.id === detail.productId).price,
-            })),
-          },
-        },
-      });
+      // // 4. Create the Prisma Transaction or standard insertion
+      // const order = await this.prisma.order.create({
+      //   data: {
+      //     totalAmount: totalAmount,
+      //     totalItems: totalItems,
+      //     // If status isn't provided, Prisma or DTO default should be used, or just pass it if it's there
+      //     // status: createOrderDto.status, // Uncomment if you still receive status from client
+      //     orderDetail: {
+      //       create: createOrderDto.orderDetail.map(detail => ({
+      //         productId: detail.productId,
+      //         quantity: detail.quantity,
+      //         price: products.find(p => p.id === detail.productId).price,
+      //       })),
+      //     },
+      //   },
+      // });
 
-      return order;
+      return products;
     } catch (error) {
       throw new RpcException(error);
     }
