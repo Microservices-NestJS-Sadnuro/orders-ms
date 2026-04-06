@@ -1,7 +1,8 @@
 import { Type } from "class-transformer";
-import { IsBoolean, IsEnum, IsNumber, IsOptional, IsPositive } from "class-validator";
+import { IsBoolean, IsEnum, IsNumber, IsOptional, IsPositive, ValidateNested } from "class-validator";
 import { OrderStatus } from "@prisma/client";
 import { OrderStatusList } from "../enums/order.enum";
+import { CreateOrderDetailDto } from "./create-order-detail.dto";
 
 export class CreateOrderDto {
     @IsNumber()
@@ -27,4 +28,9 @@ export class CreateOrderDto {
     // @IsDate()
     // @Type(() => Date)
     // paidAt: Date;
+
+    @ValidateNested({ each: true })
+    @Type(() => CreateOrderDetailDto)
+    orderDetail: CreateOrderDetailDto[];
+
 }

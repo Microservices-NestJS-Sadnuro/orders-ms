@@ -13,7 +13,18 @@ export class OrdersService {
 
   create(createOrderDto: CreateOrderDto) {
     return this.prisma.order.create({
-      data: createOrderDto,
+      data: {
+        totalAmount: createOrderDto.totalAmount,
+        totalItems: createOrderDto.totalItems,
+        status: createOrderDto.status,
+        orderDetail: {
+          create: createOrderDto.orderDetail.map(detail => ({
+            productId: detail.productId,
+            quantity: detail.quantity,
+            price: detail.price,
+          })),
+        },
+      },
     });
   }
 
