@@ -1,19 +1,26 @@
 import { Type } from "class-transformer";
-import { IsBoolean, IsEnum, IsNumber, IsOptional, IsPositive, ValidateNested } from "class-validator";
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, ValidateNested } from "class-validator";
 import { OrderStatus } from "@prisma/client";
 import { OrderStatusList } from "../enums/order.enum";
 import { CreateOrderDetailDto } from "./create-order-detail.dto";
 
 export class CreateOrderDto {
+
+    @IsString({
+        message: 'clientId must be a valid string'
+    })
+    @IsNotEmpty()
+    clientId: string;
+
     // @IsNumber()
     // @IsPositive()
     // @Type(() => Number)
     // totalAmount: number;
 
-    @IsNumber()
-    @IsPositive()
-    @Type(() => Number)
-    totalItems: number;
+    // @IsNumber()
+    // @IsPositive()
+    // @Type(() => Number)
+    // totalItems: number;
 
     @IsEnum(OrderStatusList, {
         message: `Status must be one of ${OrderStatusList.join(', ')}`

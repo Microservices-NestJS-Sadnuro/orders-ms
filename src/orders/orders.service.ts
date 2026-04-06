@@ -19,42 +19,39 @@ export class OrdersService {
 
   async create(createOrderDto: CreateOrderDto) {
     try {
-      // 1. Extract product IDs
       const productIds = createOrderDto.orderDetail.map(detail => detail.productId);
 
-      // 2. Fetch validated products from Products MSS
-      console.log('productIds', productIds);
       const products: any[] = await firstValueFrom(this.productsService.findManyByIds({ productIds }));
-      console.log('products');
 
-      // // 3. Calculate total Amount and construct detail map
-      // const totalAmount = createOrderDto.orderDetail.reduce((acc, orderItem) => {
-      //   const product = products.find(p => p.id === orderItem.productId);
-      //   return acc + (product.price * orderItem.quantity);
-      // }, 0);
+      // Calculate total Amount and construct detail map
+      const totalAmount = createOrderDto.orderDetail.reduce((acc, orderItem) => {
+        const product = products.find(p => p.id === orderItem.productId);
+        return acc + (product.price * orderItem.quantity);
+      }, 0);
 
-      // const totalItems = createOrderDto.orderDetail.reduce((acc, orderItem) => {
-      //   return acc + orderItem.quantity;
-      // }, 0);
+      const totalItems = createOrderDto.orderDetail.reduce((acc, orderItem) => {
+        return acc + orderItem.quantity;
+      }, 0);
 
-      // // 4. Create the Prisma Transaction or standard insertion
-      // const order = await this.prisma.order.create({
-      //   data: {
-      //     totalAmount: totalAmount,
-      //     totalItems: totalItems,
-      //     // If status isn't provided, Prisma or DTO default should be used, or just pass it if it's there
-      //     // status: createOrderDto.status, // Uncomment if you still receive status from client
-      //     orderDetail: {
-      //       create: createOrderDto.orderDetail.map(detail => ({
-      //         productId: detail.productId,
-      //         quantity: detail.quantity,
-      //         price: products.find(p => p.id === detail.productId).price,
-      //       })),
-      //     },
-      //   },
-      // });
+      // Create the Prisma Transaction or standard insertion
+      const order = await this.prisma.order.create({
+        data: {
+          totalAmount: totalAmount,
+          totalItems: totalItems,
+          // If status isn't provided, Prisma or DTO default should be used, or just pass it if it's there
+          // status: createOrderDto.status,
+          orderDetail: {
+            create: createOrderDto.orderDetail.map(detail => ({
+              productId: detail.productId,
+              quantity: detail.quantity,
+              price: products.find(p => p.id === detail.productId).price,
+              name: products.find(p => p.id === detail.productId).name,
+            })),
+          },
+        },
+      });
 
-      return products;
+      return order;
     } catch (error) {
       throw new RpcException(error);
     }
